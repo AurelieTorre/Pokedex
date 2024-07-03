@@ -1,15 +1,21 @@
-document.addEventListener('DOMContentLoaded', loadPokemonList);
+document.addEventListener('DOMContentLoaded', () => {
+    loadPokemonList();
+    populateTypeSelect();
+    setupEventListeners();
+});
 
 // ------------------ Arrivée sur la page ------------------------
 
 let currentOffset = 0;
 const limit = 20;
+const apiUrl = `https://pokeapi.co/api/v2/`
+let filtre = "pokemon";
 
 // Afficher la liste des Pokémon
 function loadPokemonList(offset = 0) {
     const liste = document.getElementById("liste");
 
-    fetch(`https://pokeapi.co/api/v2/pokemon?offset=${offset}&limit=${limit}`)  // Charger les Pokémon
+    fetch(apiUrl + filtre + `?offset=${offset}&limit=${limit}`)  // Charger les Pokémon
     .then(response => response.json())
     .then(data => {
         // Créer un tableau de promesses pour chaque Pokémon
@@ -28,7 +34,7 @@ function loadPokemonList(offset = 0) {
                 <div class="pokemon-item">
                     <p>${capitalize(pokemon.name)}</p>
                     <img src="${pokemon.sprites.front_default}" alt="${pokemon.name}">
-                    <p>ID : ${pokemon.id}</p>
+                    <p>N° ${pokemon.id}</p>
                     <p>Type : ${types}</p>
                 </div>
             `;
@@ -77,6 +83,96 @@ function capitalize(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+// -------------------- Filtrage ---------------------------
+
+// Fonction pour récupérer les types de Pokémon
+async function fetchPokemonTypes() {
+    try {
+        const response = await fetch(apiUrl + 'type');
+        const data = await response.json();
+        return data.results;
+    } catch (error) {
+        console.error('Erreur lors de la récupération des types :', error);
+    }
+}
+  
+  // Fonction pour remplir le menu déroulant
+  async function populateTypeSelect() {
+    const select = document.getElementById('pokemonTypeSelect');
+    const types = await fetchPokemonTypes();
+
+    types.forEach(type => {
+        const option = document.createElement('option');
+        option.value = type.name;
+        option.textContent = type.name.charAt(0).toUpperCase() + type.name.slice(1);
+        select.appendChild(option);
+    });
+}
+
+// Configuration des écouteurs d'événements : réagir quan don sélectionne un type
+function setupEventListeners() {
+    document.getElementById('pokemonTypeSelect').addEventListener('change', function(event) {
+        const selectedType = event.target.value;
+        filterPokemonByType(selectedType);
+    });
+}
+  
+  // Filtrer par le type sélectionné
+  async function filterPokemonByType(type) {
+    currentOffset = 0; // Réinitialiser l'offset
+    if (type === "") {
+        filtre = "pokemon";
+        loadPokemonList(0);
+    } else {
+        console.log("else");
+        try {
+            const response = await fetch(`${apiUrl}type/${type}`);
+            const data = await response.json();
+            displayPokemonOfType(data.pokemon);
+        } catch (error) {
+            console.error('Erreur lors du filtrage par type :', error);
+        }
+    }
+}
+
+function displayPokemonOfType(pokemonList) {
+    const liste = document.getElementById("liste");
+    const startIndex = currentOffset;
+    const endIndex = Math.min(startIndex + limit, pokemonList.length);
+    const pokemonToDisplay = pokemonList.slice(startIndex, endIndex);
+
+    const pokemonPromises = pokemonToDisplay.map(p => 
+        fetch(p.pokemon.url).then(res => res.json())
+    );
+
+    Promise.all(pokemonPromises)
+        .then(pokemonData => {
+            const pokemonHTML = pokemonData.map(pokemon => {
+                const types = pokemon.types.map(type => capitalize(type.type.name)).join(', ');
+                return `
+                    <div class="pokemon-item">
+                        <p>${capitalize(pokemon.name)}</p>
+                        <img src="${pokemon.sprites.front_default}" alt="${pokemon.name}">
+                        <p>N° ${pokemon.id}</p>
+                        <p>Type : ${types}</p>
+                    </div>
+                `;
+            }).join('');
+            
+            liste.innerHTML = pokemonHTML;
+
+            // Mettre à jour les boutons de pagination
+            updatePaginationButtons(
+                startIndex > 0,
+                endIndex < pokemonList.length
+            );
+        })
+        .catch(error => {
+            console.error("Erreur lors de l'affichage des Pokémon :", error);
+            liste.innerHTML = "Une erreur est survenue lors du chargement des Pokémon.";
+        });
+}
+
 // -------------------- Recherche ---------------------------
 
 // Réagir si quelqu'un écrit dans la barre de recherche
@@ -116,7 +212,7 @@ function displayPokemon(pokemon) {
         result.innerHTML = `
             <h2>${capitalize(pokemon.name)}</h2>
             <img src="${pokemon.sprites.front_default}" alt="${pokemon.name}">
-            <p>ID : ${pokemon.id}</p>
+            <p>N° ${pokemon.id}</p>
             <p>Type : ${pokemon.types.map(type => type.type.name).join(', ')}</p>
             <p>HP : ${getStat(pokemon, 'hp')}</p>
             <p>Attack : ${getStat(pokemon, 'attack')}</p>

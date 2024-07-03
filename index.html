@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokedex</title>
+    <title>PokeLiliDex</title>
     <link rel="shortcut icon" type="image/png" href="./assets/pokeball.png"/>
     <link rel="stylesheet" href="./style.css">
 </head>
@@ -13,7 +13,12 @@
     </header>
     <main>
         <Section class="search">
-            <input id="searchInput" type="text" placeholder="Rechercher un Pokémon" autocomplete="off">
+            <div class="search-bar">
+                <select name="types" id="pokemonTypeSelect">
+                    <option value="">Tous les types</option>
+                </select>
+                <input id="searchInput" type="text" placeholder="Rechercher un Pokémon" autocomplete="off">
+            </div>
             <div id="result"></div>
             <div id="liste"></div>
             <div id="pagination"></div>
