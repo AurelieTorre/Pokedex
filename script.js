@@ -31,7 +31,7 @@ function loadPokemonList(offset = 0) {
         const pokemonList = pokemonData.map(pokemon => {
             const types = pokemon.types.map(type => capitalize(type.type.name)).join(', ');
             return `
-                <div class="pokemon-item">
+                <div class="pokemon-item" data-id="${pokemon.id}">
                     <p>${capitalize(pokemon.name)}</p>
                     <img src="${pokemon.sprites.front_default}" alt="${pokemon.name}">
                     <p>N° ${pokemon.id}</p>
@@ -41,6 +41,9 @@ function loadPokemonList(offset = 0) {
         }).join('');
         
         liste.innerHTML = pokemonList;
+
+        // Permettre de cliquer sur une carte
+        setupPokemonClickListeners();
 
          // Utiliser les URLs correctes pour la pagination
          updatePaginationButtons(previousUrl, nextUrl);
@@ -109,7 +112,7 @@ async function fetchPokemonTypes() {
     });
 }
 
-// Configuration des écouteurs d'événements : réagir quan don sélectionne un type
+// Configuration des écouteurs d'événements : réagir quand on sélectionne un type
 function setupEventListeners() {
     document.getElementById('pokemonTypeSelect').addEventListener('change', function(event) {
         const selectedType = event.target.value;
@@ -124,7 +127,6 @@ function setupEventListeners() {
         filtre = "pokemon";
         loadPokemonList(0);
     } else {
-        console.log("else");
         try {
             const response = await fetch(`${apiUrl}type/${type}`);
             const data = await response.json();
@@ -160,6 +162,9 @@ function displayPokemonOfType(pokemonList) {
             }).join('');
             
             liste.innerHTML = pokemonHTML;
+
+            // Permettre de cliquer sur une carte
+            setupPokemonClickListeners();
 
             // Mettre à jour les boutons de pagination
             updatePaginationButtons(
@@ -205,7 +210,7 @@ function getStat(pokemon, statName) {
     return pokemon.stats.find(stat => stat.stat.name === statName)?.base_stat || 'N/A';
 }
 
-// Afficher les détails du Pokémon trouvé
+// Afficher les détails du Pokémon trouvé (ou cliqué)
 function displayPokemon(pokemon) {
     const result = document.getElementById("result");
     if (result) {
@@ -227,6 +232,21 @@ function displayPokemon(pokemon) {
         console.error("L'élément avec l'ID 'result' n'a pas été trouvé.");
     }
 }
+
+// Réagir si on clique sur une carte de la liste
+function setupPokemonClickListeners() {
+    document.getElementById("liste").addEventListener('click', function(event) {
+        const pokemonItem = event.target.closest('.pokemon-item');
+        if (pokemonItem) {
+            let pokemon = pokemonItem.dataset.name;
+            displayPokemon(pokemon);
+        }
+    });
+}
+
+
+
+
 
 
 
