@@ -137,6 +137,7 @@ function setupEventListeners() {
     }
 }
 
+// Afficher les Pokémon du type sélectionné
 function displayPokemonOfType(pokemonList) {
     const liste = document.getElementById("liste");
     const startIndex = currentOffset;
@@ -238,8 +239,12 @@ function setupPokemonClickListeners() {
     document.getElementById("liste").addEventListener('click', function(event) {
         const pokemonItem = event.target.closest('.pokemon-item');
         if (pokemonItem) {
-            let pokemon = pokemonItem.dataset.name;
-            displayPokemon(pokemon);
+            const pokemonId = pokemonItem.dataset.id;
+
+            // Récupérer l'objet pokémon complet à partir de l'API ou d'une autre source de données
+            fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonId}`)
+                .then(response => response.json())
+                .then(pokemon => displayPokemon(pokemon));
         }
     });
 }
