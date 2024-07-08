@@ -14,9 +14,14 @@
     <main>
         <Section class="search">
             <div class="search-bar">
-                <select name="types" id="pokemonTypeSelect">
-                    <option value="">Tous les types</option>
-                </select>
+                <div class="drop-down">
+                    <select name="types" id="pokemonTypeSelect">
+                        <option value="">Tous les types</option>
+                    </select>
+                    <select name="generations" id="pokemonGenerationSelect">
+                        <option value="">Toutes les générations</option>
+                    </select>
+                </div>
                 <input id="searchInput" type="text" placeholder="Rechercher un Pokémon" autocomplete="off">
             </div>
             <div id="result"></div>

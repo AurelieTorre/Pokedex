@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     loadPokemonList();
     populateTypeSelect();
+    populateGenerationSelect();
     setupEventListeners();
 });
 
@@ -86,7 +87,7 @@ function capitalize(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-// -------------------- Filtrage ---------------------------
+// -------------------- Filtrage par type ---------------------------
 
 // Fonction pour récupérer les types de Pokémon
 async function fetchPokemonTypes() {
@@ -117,6 +118,11 @@ function setupEventListeners() {
     document.getElementById('pokemonTypeSelect').addEventListener('change', function(event) {
         const selectedType = event.target.value;
         filterPokemonByType(selectedType);
+    });
+
+    document.getElementById('pokemonGenerationSelect').addEventListener('change', function (event) {
+        const selectedGeneration = event.target.value;
+        filterPokemonByGeneration(selectedGeneration);
     });
 }
   
@@ -177,6 +183,91 @@ function displayPokemonOfType(pokemonList) {
             console.error("Erreur lors de l'affichage des Pokémon :", error);
             liste.innerHTML = "Une erreur est survenue lors du chargement des Pokémon.";
         });
+}
+
+// -------------------- Filtrage par génération ---------------------------
+
+// Fonction pour remplir le menu déroulant
+async function populateGenerationSelect() {
+    const select = document.getElementById('pokemonGenerationSelect');
+
+    for (let i=1; i<=9; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = `Generation ${i}`; // Affiche du texte dans le menu déroulant
+        select.appendChild(option);
+    };
+}
+
+// Filtrer par la génération sélectionnée
+async function filterPokemonByGeneration(generation) {
+    currentOffset = 0; // Réinitialiser l'offset
+    const liste = document.getElementById("liste");
+    if (generation === "") {
+        filtre = "pokemon";
+        loadPokemonList(0);
+    } else {
+        try {
+            const response = await fetch(`${apiUrl}generation/${generation}`);
+            const data = await response.json();
+            if (data.pokemon_species && data.pokemon_species.length > 0) {
+                displayPokemonOfGeneration(data.pokemon_species);
+            } else {
+                throw new Error('No Pokémon species found for the selected generation.');
+            }
+        } catch (error) {
+            console.error('Erreur lors du filtrage par génération :', error);
+            liste.innerHTML = "Une erreur est survenue lors du chargement des Pokémon.";
+        }
+    }
+}
+
+// Afficher les Pokémon de la génération sélectionnée
+async function displayPokemonOfGeneration(pokemonList) {
+    const liste = document.getElementById("liste");
+    const startIndex = currentOffset;
+    const endIndex = Math.min(startIndex + limit, pokemonList.length);
+    const pokemonToDisplay = pokemonList.slice(startIndex, endIndex);
+
+    const pokemonPromises = pokemonToDisplay.map(async p => {
+        const response = await fetch(p.url);
+        return response.json();
+    });
+
+    try {
+        const pokemonData = await Promise.all(pokemonPromises);
+        const detailedPokemonPromises = pokemonData.map(async pokemon => {
+            const response = await fetch(pokemon.varieties[0].pokemon.url);
+            return response.json();
+        });
+
+        const detailedPokemonData = await Promise.all(detailedPokemonPromises);
+        const pokemonHTML = detailedPokemonData.map(pokemon => {
+            const types = pokemon.types.map(type => capitalize(type.type.name)).join(', ');
+            return `
+                <div class="pokemon-item">
+                    <p>${capitalize(pokemon.name)}</p>
+                    <img src="${pokemon.sprites.front_default}" alt="${pokemon.name}">
+                    <p>N° ${pokemon.id}</p>
+                    <p>Type : ${types}</p>
+                </div>
+            `;
+        }).join('');
+        
+        liste.innerHTML = pokemonHTML;
+
+        // Permettre de cliquer sur une carte
+        setupPokemonClickListeners();
+
+        // Mettre à jour les boutons de pagination
+        updatePaginationButtons(
+            startIndex > 0,
+            endIndex < pokemonList.length
+        );
+    } catch (error) {
+        console.error("Erreur lors de l'affichage des Pokémon :", error);
+        liste.innerHTML = "Une erreur est survenue lors du chargement des Pokémon.";
+    }
 }
 
 // -------------------- Recherche ---------------------------

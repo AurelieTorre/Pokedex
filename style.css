@@ -42,6 +42,30 @@ h1 {
     align-items: center;
 }
 
+.search-bar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.drop-down {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    gap: 0.5vw;
+    width: 17.5vw;
+}
+
+#pokemonTypeSelect, #pokemonGenerationSelect {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 1.2rem;
+    padding: 0.8vh 0.8vw;
+    border-color: rgb(110, 238, 232);
+    border-radius: 5px;
+    margin-right: 2vw;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
 #searchInput {
     width: 70vw;
     height: 7vh;
@@ -52,15 +76,6 @@ h1 {
     border: none;
 }
 
-#pokemonTypeSelect {
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    font-size: 1.2rem;
-    padding: 0.8vh 0.8vw;
-    border-color: rgb(110, 238, 232);
-    border-radius: 5px;
-    margin-right: 2vw;
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-}
 
 #liste {
     display: flex;
