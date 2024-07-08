@@ -59,7 +59,7 @@ h1 {
 #pokemonTypeSelect, #pokemonGenerationSelect {
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     font-size: 1.2rem;
-    padding: 0.8vh 0.8vw;
+    padding: 0.8vh 0.5vw;
     border-color: rgb(110, 238, 232);
     border-radius: 5px;
     margin-right: 2vw;
@@ -142,15 +142,34 @@ h1 {
     background-color: goldenrod;
 }
 
-@media screen and (max-width: 833px) {
+@media screen and (max-width: 905px) {
+
+    .search-bar {
+        flex-direction: column;
+    }
+
+    .drop-down {
+        width: auto;
+    }
+
+    #pokemonTypeSelect, #pokemonGenerationSelect {
+        width: 140px;
+    }
+
     #searchInput {
-        width: 50vw;
+        width: 60vw;
+        margin-top: 1vh;
     }
 }
 
-@media screen and (max-width: 375px) {
+@media screen and (max-width: 420px) {
+    #pokemonTypeSelect, #pokemonGenerationSelect {
+        font-size: 1rem;
+    }
+
     #searchInput {
-        width: 40vw;
-        padding: 1vw;
+        width: 50vw;
+        padding: 10px;
+        font-size: 1rem;
     }
 }

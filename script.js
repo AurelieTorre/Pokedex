@@ -284,7 +284,7 @@ searchInput.addEventListener('input', function () {
 
 // Chercher le Pokémon indiqué dans la barre de recherche
 function searchPokemon(searchTerm) {
-    fetch(`https://pokeapi.co/api/v2/pokemon/${searchTerm}`)
+    fetch(`${apiUrl}pokemon/${searchTerm}`)
     .then(response => response.json())
     .then(data => {
         // Traiter les données du Pokémon trouvé
@@ -330,24 +330,43 @@ function setupPokemonClickListeners() {
     document.getElementById("liste").addEventListener('click', function(event) {
         const pokemonItem = event.target.closest('.pokemon-item');
         if (pokemonItem) {
-            const pokemonId = pokemonItem.dataset.id;
+            const pokemonName = pokemonItem.querySelector('p:first-child').textContent;
 
             // Récupérer l'objet pokémon complet à partir de l'API ou d'une autre source de données
-            fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonId}`)
+            fetch(`${apiUrl}pokemon/${pokemonName.toLowerCase()}`)
                 .then(response => response.json())
                 .then(pokemon => displayPokemon(pokemon));
+
         }
+
     });
+
 }
 
+//---------- Media queries ------------
 
+window.addEventListener('resize', updateSelectPlaceholder);
 
+function updateSelectPlaceholder() {
+    const selectElement = document.getElementById('pokemonGenerationSelect');
+    if (window.matchMedia("(max-width: 1200px)").matches) {
+        // Si la fenêtre est rétrécie, changer le texte par défaut
+        selectElement.options[0].text = "Générations";
+    } else {
+        // Sinon, remettre le texte par défaut
+        selectElement.options[0].text = "Toutes les générations";
+    }
+}
 
+window.addEventListener('resize', updateSearchPlaceholder);
 
-
-
-
-
-
-
-
+function updateSearchPlaceholder() {
+    const searchElement = document.getElementById('searchInput');
+    if (window.matchMedia("(max-width: 360px)").matches) {
+        // Si la fenêtre est rétrécie, changer le texte par défaut
+        searchElement.placeholder = "Rechercher";
+    } else {
+        // Sinon, remettre le texte par défaut
+        searchElement.placeholder = "Rechercher un Pokémon";
+    }
+}
